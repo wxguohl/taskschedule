@@ -1,10 +1,13 @@
 package com.retech.edu;
 
 import com.retech.edu.zk.NodeEventListener;
+import com.retech.edu.zk.ScheduleWatcher;
 import com.retech.edu.zk.ZKManager;
+import com.retech.edu.zk.ZKTools;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.api.CuratorWatcher;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
@@ -14,77 +17,75 @@ import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.apache.zookeeper.data.Stat;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class LockStartup {
+    private static String zkAddress = "centos6-jack.chinacloudapp.cn:2181";
     private static CuratorFramework client;
+    private static ZKManager zkManager = null;
 
     public static void main(String[] args) throws Exception {
-        String zkAddress = "centos6-jack.chinacloudapp.cn:2181";
-        ZKManager zkManager = new ZKManager(zkAddress);
+        zkManager = new ZKManager(zkAddress);
         client = zkManager.getClient();
         lock();
-        zkManager.destory();
+        // zkManager.destory();
+        Thread.sleep(Long.MAX_VALUE);
     }
 
-    public static void watch() throws Exception {
-        PathChildrenCache cache = new PathChildrenCache(client, "/zk", false);
-        cache.start();
-        System.out.println("监听开始/zk........");
-        PathChildrenCacheListener plis = new PathChildrenCacheListener() {
-            @Override
-            public void childEvent(CuratorFramework client, PathChildrenCacheEvent event)
-                    throws Exception {
-                switch (event.getType()) {
-                    case CHILD_ADDED: {
-                        System.out.println("Node added: " + ZKPaths.getNodeFromPath(event.getData().getPath()));
-                        break;
-                    }
-                    case CHILD_UPDATED: {
-                        System.out.println("Node changed: " + ZKPaths.getNodeFromPath(event.getData().getPath()));
-                        break;
-                    }
-                    case CHILD_REMOVED: {
-                        System.out.println("Node removed: " + ZKPaths.getNodeFromPath(event.getData().getPath()));
-                        break;
-                    }
-                }
+    public static void Wa(final InterProcessSemaphoreMutex processSemaphoreMutex) throws Exception {
+        List<String> childData = ZKTools.listChildren(client, "/hot");
+        if (childData.size() != 0) {
+            for (String data : childData) {
+                System.out.println("Path:" + data);
+                System.out.println("任务执行完成");
+                ZKTools.deleteNode(client,"/hot/"+data);
+                System.out.println("删除节点");
             }
-        };
-        //注册监听
-        cache.getListenable().addListener(plis);
+            if (processSemaphoreMutex.isAcquiredInThisProcess()) {
+                processSemaphoreMutex.release();
+            }
+            printProcess(processSemaphoreMutex);
+            System.out.println("再次申请锁服务......");
+            lock();
+        } else {
+            System.out.println("开始监控");
+            CuratorWatcher watcher = new CuratorWatcher() {
+                @Override
+                public void process(WatchedEvent event) throws Exception {
+                    System.out.println("节点获取");
+                    Wa(processSemaphoreMutex);
+                }
+            };
+            client.getChildren().usingWatcher(watcher).forPath("/hot");
+        }
     }
 
     private static void lock() throws Exception {
         InterProcessSemaphoreMutex processSemaphoreMutex = new InterProcessSemaphoreMutex(client, "/lock");
-        printProcess(processSemaphoreMutex);
         try {
+            printProcess(processSemaphoreMutex);
             processSemaphoreMutex.acquire();
             printProcess(processSemaphoreMutex);
-            run();
+            Wa(processSemaphoreMutex);
         } catch (Exception ex) {
-        } finally {
-            try {
+            if (processSemaphoreMutex.isAcquiredInThisProcess()) {
                 processSemaphoreMutex.release();
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+            printProcess(processSemaphoreMutex);
+//            zkManager.destory();
+//            zkManager = new ZKManager(zkAddress);
+//            client = zkManager.getClient();
+            System.out.println("再次申请锁服务......");
+            lock();
         }
-        if (processSemaphoreMutex.isAcquiredInThisProcess()) {
-            processSemaphoreMutex.release();
-        }
-        printProcess(processSemaphoreMutex);
-        System.out.println("再次申请锁服务......");
-        lock();
-    }
 
-    private static void run() throws Exception {
-        watch();
-//        client.getCuratorListenable().addListener(new NodeEventListener());
     }
 
     private static void printProcess(final InterProcessSemaphoreMutex processSemaphoreMutex) {
