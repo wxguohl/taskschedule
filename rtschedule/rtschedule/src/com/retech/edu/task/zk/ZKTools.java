@@ -1,4 +1,4 @@
-package com.retech.edu.zk;
+package com.retech.edu.task.zk;
 import java.util.List;
 
 import com.google.common.base.Charsets;
@@ -9,11 +9,8 @@ import com.google.common.collect.Maps;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.*;
 import org.apache.curator.utils.ZKPaths;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.data.Stat;
 
-import java.util.List;
 import java.util.Map;
 
 /**

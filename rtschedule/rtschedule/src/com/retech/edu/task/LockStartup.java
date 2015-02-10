@@ -1,30 +1,13 @@
-package com.retech.edu;
+package com.retech.edu.task;
 
-import com.retech.edu.zk.NodeEventListener;
-import com.retech.edu.zk.ScheduleWatcher;
-import com.retech.edu.zk.ZKManager;
-import com.retech.edu.zk.ZKTools;
-import org.apache.curator.RetryPolicy;
+import com.retech.edu.task.zk.ZKManager;
+import com.retech.edu.task.zk.ZKTools;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.api.CuratorWatcher;
-import org.apache.curator.framework.recipes.cache.PathChildrenCache;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.locks.InterProcessSemaphoreMutex;
-import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.apache.curator.utils.ZKPaths;
-import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.data.Stat;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class LockStartup {
     private static String zkAddress = "centos6-jack.chinacloudapp.cn:2181";

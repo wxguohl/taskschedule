@@ -1,19 +1,14 @@
-package com.retech.edu;
+package com.retech.edu.task;
 
-import com.retech.edu.zk.ScheduleWatcher;
-import com.retech.edu.zk.ZKTools;
+import com.retech.edu.task.zk.ZKTools;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.CuratorFrameworkFactory.Builder;
 import org.apache.curator.framework.api.CuratorWatcher;
-import org.apache.curator.framework.api.GetChildrenBuilder;
 import org.apache.curator.framework.recipes.cache.*;
 import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.apache.curator.utils.ZKPaths;
-import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
 
 import java.util.List;
 

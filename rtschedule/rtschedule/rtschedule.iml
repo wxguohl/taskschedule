@@ -27,6 +27,7 @@
         <jarDirectory url="file://$MODULE_DIR$/../lib/recipes" recursive="false" />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="quartz:quartz:1.6.0" level="application" />
   </component>
 </module>
 

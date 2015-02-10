@@ -1,6 +1,5 @@
-package com.retech.edu.zk;
+package com.retech.edu.task.zk;
 
-import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;

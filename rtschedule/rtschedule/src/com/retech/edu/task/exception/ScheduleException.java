@@ -1,4 +1,4 @@
-package com.retech.edu.exception;
+package com.retech.edu.task.exception;
 
 /**
  * Created by jackwang on 15-2-2.
