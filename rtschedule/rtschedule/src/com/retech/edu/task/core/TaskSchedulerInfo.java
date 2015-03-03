@@ -11,6 +11,7 @@ public class TaskSchedulerInfo {
     private String description;
     private Date startdate;
     private Date enddate;
+    private String taskgroup;
 
     public int getId(){
         return  id;
@@ -43,10 +44,16 @@ public class TaskSchedulerInfo {
     public Date getEnddate(){
         return enddate;
     }
-
     public void setEnddate(Date enddate){
         this.enddate=enddate;
     }
 
+
+    public String getTaskgroup(){
+        return taskgroup;
+    }
+    public void setTaskgroup(String taskgroup){
+        this.taskgroup=taskgroup;
+    }
 
 }
